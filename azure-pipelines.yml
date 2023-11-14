@@ -7,36 +7,28 @@ variables:
   imageName: 'pipelines-javascript-docker'
 
 steps:
-- task: ArtifactoryToolsInstaller@1
+- task: JFrogToolsInstaller@1
   inputs:
-    artifactoryService: 'Kayal'
-    cliInstallationRepo: 'jfrog-cli'
-    installExtractors: true
-    extractorsInstallationRepo: 'jcenter'
-- task: Docker@2
-  displayName: Build an image
+    artifactoryConnection: 'hts2-accesstoken'
+    cliInstallationRepo: 'cli-old'
+
+- task: JFrogDocker@1
   inputs:
-    repository: swarnenduk-docker-local.jfrog.io/$(imageName)
-    command: build
-    Dockerfile: app/Dockerfile
-- task: ArtifactoryDocker@1
-  inputs:
-    command: 'push'
-    artifactoryService: 'Kayal'
-    targetRepo: 'docker-local'
-    imageName: 'swarnenduk-docker-local.jfrog.io/$(imageName):$(Build.BuildId)'
+    command: 'Pull'
+    artifactoryConnection: 'hts2-accesstoken'
+    imageName: 'hts2-jana-docker-virtual.jfrog.io/nginx:latest'
     collectBuildInfo: true
     buildName: '$(Build.DefinitionName)'
     buildNumber: '$(Build.BuildNumber)'
-    includeEnvVars: true
-- task: ArtifactoryPublishBuildInfo@1
+    skipLogin: false
+
+- task: JFrogDocker@1
   inputs:
-    artifactoryService: Kayal
-    buildName: $(Build.DefinitionName)
-    buildNumber: $(Build.BuildNumber)
-- task: ArtifactoryXrayScan@1
-  inputs:
-    artifactoryService: 'Kayal'
+    command: 'Push'
+    artifactoryConnection: 'hts2-accesstoken'
+    imageName: 'hts2-jana-docker-virtual.jfrog.io/nginx:latest'
+    collectBuildInfo: true
     buildName: '$(Build.DefinitionName)'
     buildNumber: '$(Build.BuildNumber)'
-    allowFailBuild: false
+    threads: '3'
+    skipLogin: false'
